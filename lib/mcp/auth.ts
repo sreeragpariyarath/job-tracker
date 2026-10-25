@@ -4,7 +4,8 @@ import { isOwner } from "../auth-policy";
 import { mcpConfig } from "./config";
 
 const keySets = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
-export async function authorizeMcp(request: Request): Promise<Response | null> {
+export type McpIdentity = { sub: string; clientId: string; scopes: string[] };
+export async function authorizeMcp(request: Request, identity?: { value?: McpIdentity }): Promise<Response | null> {
   let config;
   try { config = mcpConfig(); } catch { return reject("Authentication is not configured", 503); }
   const origin = request.headers.get("origin");
@@ -23,6 +24,7 @@ export async function authorizeMcp(request: Request): Promise<Response | null> {
     if (!isOwner(payload.sub)) return reject("Access denied", 403);
     const scopes = typeof payload.scope === "string" ? payload.scope.split(" ") : [];
     if (!scopes.includes("read:applications")) return reject("Read permission required", 403, challenge + ', error="insufficient_scope"');
+    if (identity) identity.value = { sub: payload.sub!, clientId: typeof payload.azp === "string" ? payload.azp : typeof payload.client_id === "string" ? payload.client_id : "unknown", scopes };
     return null;
   } catch {
     return reject("Invalid or expired access token", 401, challenge + ', error="invalid_token"');

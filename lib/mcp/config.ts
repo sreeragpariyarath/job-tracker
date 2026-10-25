@@ -9,5 +9,5 @@ export function mcpConfig() {
 export function resourceMetadata() {
   const { resource, issuer } = mcpConfig();
   return { resource, resource_name: "Job Tracker", authorization_servers: [issuer],
-    bearer_methods_supported: ["header"], scopes_supported: ["read:applications"] };
+    bearer_methods_supported: ["header"], scopes_supported: ["read:applications", "write:applications"] };
 }

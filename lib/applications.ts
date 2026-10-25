@@ -93,6 +93,10 @@ function finalize(fields: Partial<Draft>, base: Draft): Draft {
   return merged;
 }
 
+export function normalizeApplication(input: unknown): Draft {
+  return finalize(parse(input), BLANK);
+}
+
 function toApp(doc: ApplicationDocument): App {
   const { _id, salary, workMode, phone, ...rest } = doc;
   return {

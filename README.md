@@ -81,7 +81,7 @@ The endpoint is https://job-trackersss.vercel.app/api/mcp. It implements statele
 ### Tools
 
 - search_applications: optional query (up to 200 characters), status (All by default), source, page (default 1), and pageSize (default 10, maximum 50). Returns items and pagination; searches all statuses unless explicitly filtered. Uses the existing business layer without dashboard summary queries.
-- get_application: requires an application UUID obtained from search; returns the full application or a tool error.
+- get_application: requires the exact application ID obtained from search (UUID or readable legacy ID); returns the full application or a tool error.
 - Both tools are read-only. No preview, create, import, update, delete, or job submission tools exist in Phase 2. Application content must be treated as untrusted data by clients.
 
 ### Authentication and discovery
@@ -110,3 +110,31 @@ Check unauthenticated POST /api/mcp returns 401 with the discovery challenge, me
 For local MCP testing, register a separate Auth0 API identifier http://localhost:3000/api/mcp, since the audience is derived from APP_BASE_URL. Hosted chat clients cannot reach localhost directly; use the production endpoint for their connection tests.
 
 Run npm run test:mcp alongside npm run test:auth, lint, TypeScript and the production build. Tests use generated local signing keys and mock application functions; they do not read or modify Atlas. Live Auth0/client connection validation remains a deployment step for the owner.
+
+## Phase 3: preview and approved creation
+
+No new environment variables or hosting services are needed. MongoDB Atlas transactions are required (the existing Atlas replica set supports these). The database user must be able to create/write the new `application_previews` and `application_creation_locks` collections as well as `applications`.
+
+### Owner deployment steps
+
+1. Deploy this change. Keep both `read:applications` and `write:applications` defined on the Job Tracker MCP Auth0 API.
+2. Under Application Access, grant `write:applications` in **User-delegated Access** to the dedicated ChatGPT and Claude OAuth clients. Keep read permission and the exact owner restriction. Client-credentials and anonymous grants are unnecessary.
+3. Refresh the connector's tool list and reconnect/authorize with both scopes. A previously issued read-only token will not gain write permission until a new token is issued. Public discovery now advertises both scopes.
+4. Verify website login still works and a read-only client cannot discover or execute `create_application`.
+
+### Application flow
+
+- `preview_application` accepts one application (company, role, applied date, optional existing draft fields). It uses the existing business validation, normalizes text, requires Applied status, detects duplicates, and stores a 30-minute preview. It never inserts an application. Preview persistence is a side effect, so the tool is annotated as a write action even though it only needs read scope.
+- Open the returned `approvalUrl` in a browser. Only the configured owner's website session can review/approve it. The owner reviews every field and checks **I submitted this job application**. Approval is a same-origin POST; a tool argument or an AI statement cannot grant it. The page treats all preview content as plain text.
+- Return to the AI chat and ask it to call `create_application` with the `confirmationId`. The token needs both scopes and must belong to the owner and the same OAuth client that created the preview. No additional application fields are accepted. Changed data requires a fresh preview and approval.
+- Creation checks approval, expiry and duplicates again in a MongoDB transaction. A durable lock serializes MCP creations across instances. The application, embedded creation audit entry, and preview's application ID commit together. Retrying a consumed preview returns the original ID, including after expiry. Never retry with a new preview just because the response was lost.
+- Duplicate detection includes legacy documents: normalized company + role + applied date, or a matching normalized job URL. URL normalization strips fragments and common tracking parameters, preserving job-identifying query parameters. Duplicate errors do not support an override in this phase. Existing records are not migrated or deleted.
+- The stored provenance identifies `origin: mcp`, verified owner subject, OAuth client ID and preview ID. The embedded audit records creation time and browser approval time. Client identity comes from the verified token, rather than trusting an AI-provided platform name.
+
+Preview receipts are retained to preserve retry safety; expired unused previews contain private job data and are not automatically deleted in this version. Duplicate serialization covers MCP creations; simultaneous manual/import writes retain their existing behavior. Update/follow-up/import tools remain later phases.
+
+### Deployment verification
+
+Use a disposable real or test application: preview it, try create before approval (must fail), approve through the private page, create, retry the same confirmation (same ID, one record), and preview the same company/role/date or URL again (duplicate). Try a foreign-origin approval POST and another account (must fail). Previewing alone must leave the applications count unchanged. Remove any disposable record through the tracker after verification.
+
+`npm run test:mcp` covers legacy IDs, token validation, scope-specific tool discovery, unchanged creation payloads, approval/expiry/client binding, duplicate detection, audit fields and retry receipts. Database tests use an in-memory transaction mock; live Atlas transaction/concurrency and hosted browser/client validation remain deployment checks.

@@ -38,16 +38,17 @@ test('signed tokens enforce issuer, audience, expiry, owner and read scope', asy
 });
 
 test('real MCP transport initializes, lists only read tools, validates and executes calls', async () => {
-  let calls = 0, options;
+  let calls = 0, options, authenticatedIdentity;
   const id = '123e4567-e89b-42d3-a456-426614174000';
   const { createTrackerMcpServer } = load('lib/mcp/server.ts', {
     '@modelcontextprotocol/sdk/server/mcp.js': { McpServer }, zod: { z },
     '../types': { STATUSES: ['Applied', 'Rejected', 'Closed'], SOURCES: ['Indeed', 'Other'] },
+    '../application-previews': { previewApplication: async input => ({ application: input, confirmationId: 'preview' }), createPreviewApplication: async id => ({ applicationId: id }) },
     '../applications': { listApplicationsPage: async value => { calls++; options = value; return { items: [{ id, status: 'Rejected' }], total: 11 }; }, getApplication: async value => [id, 'alignminds-mern'].includes(value) ? { id: value } : null },
   });
   const route = load('app/api/mcp/route.ts', {
     '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js': { WebStandardStreamableHTTPServerTransport },
-    '@/lib/mcp/auth': { authorizeMcp: async () => null }, '@/lib/mcp/server': { createTrackerMcpServer },
+    '@/lib/mcp/auth': { authorizeMcp: async (_request, context) => { if (context) context.value = authenticatedIdentity; return null; } }, '@/lib/mcp/server': { createTrackerMcpServer },
   });
   let rpcId = 0;
   async function rpc(method, params) {
@@ -70,12 +71,22 @@ test('real MCP transport initializes, lists only read tools, validates and execu
   }
   assert.equal((await rpc('tools/call', { name: 'get_application', arguments: { id: '123e4567-e89b-42d3-a456-426614174001' } })).result.isError, true);
   assert.equal((await route.GET(new Request(config.resource))).status, 405);
+  authenticatedIdentity = { sub: 'owner', clientId: 'test-client', scopes: ['read:applications'] };
+  const readTools = (await rpc('tools/list', {})).result.tools.map(tool => tool.name);
+  assert.equal(readTools.includes('preview_application'), true);
+  assert.equal(readTools.includes('create_application'), false);
+  authenticatedIdentity.scopes.push('write:applications');
+  const writeTools = (await rpc('tools/list', {})).result.tools;
+  assert.equal(writeTools.find(tool => tool.name === 'create_application').annotations.readOnlyHint, false);
+  assert.equal((await rpc('tools/call', { name: 'create_application', arguments: { confirmationId: id } })).result.structuredContent.applicationId, id);
+  const changedFields = await rpc('tools/call', { name: 'create_application', arguments: { confirmationId: id, company: 'Changed' } });
+  assert.ok(changedFields.error || changedFields.result?.isError);
 });
 
 test('discovery advertises only public read scope and the configured resource', () => {
   const env = { AUTH0_DOMAIN: 'tenant.auth0.com', APP_BASE_URL: 'https://tracker.example' };
   const metadata = load('lib/mcp/config.ts', { '../auth-policy': { authConfigured: () => true } }, env).resourceMetadata();
   assert.equal(metadata.resource, config.resource);
-  assert.equal(metadata.scopes_supported.join(' '), 'read:applications');
+  assert.equal(metadata.scopes_supported.join(' '), 'read:applications write:applications');
   assert.equal(JSON.stringify(metadata).includes('SECRET'), false);
 });

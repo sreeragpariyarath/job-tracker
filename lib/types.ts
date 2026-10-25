@@ -48,4 +48,6 @@ export type App = Draft & {
   id: string;
   createdAt: number;
   updatedAt: number;
+  provenance?: { origin: "mcp"; ownerSub: string; clientId: string; previewId: string };
+  auditHistory?: { action: "created"; actor: string; clientId: string; at: number; approvedAt: number }[];
 };

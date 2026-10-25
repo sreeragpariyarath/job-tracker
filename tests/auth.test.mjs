@@ -66,13 +66,15 @@ test('owner checks and write origins reject impersonation and foreign origins', 
 });
 
 test('every route denies access before parsing input or calling the database', async () => {
-  for (const file of ['app/api/applications/route.ts', 'app/api/applications/[id]/route.ts', 'app/api/applications/import/route.ts']) {
+  for (const file of ['app/api/applications/route.ts', 'app/api/applications/[id]/route.ts', 'app/api/applications/import/route.ts', 'app/mcp/approve/[id]/confirm/route.ts']) {
     for (const status of [401, 403, 503]) {
       const routes = load(file, {
         'next/server': next,
         '@/lib/api-auth': { requireOwner: async () => Response.json({ error: 'Denied' }, { status }), PRIVATE_HEADERS: {} },
         '@/lib/applications': new Proxy({}, { get: () => () => { throw new Error('Database must not be called'); } }),
         '@/lib/types': { STATUSES: [], SOURCES: [] },
+        '@/lib/auth0': { getAuth0: () => { throw new Error('Session must not be read after denial'); } },
+        '@/lib/application-previews': { approvePreview: () => { throw new Error('Database must not be called'); } },
       }, {});
       for (const method of ['GET', 'POST', 'PATCH', 'DELETE']) {
         if (!routes[method]) continue;
