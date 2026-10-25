@@ -29,7 +29,7 @@ export function createTrackerMcpServer() {
   });
   server.registerTool("get_application", {
     title: "Get job application", description: "Retrieve the full application using an ID returned by search_applications.",
-    inputSchema: z.object({ id: z.string().uuid() }).strict(), annotations, _meta: metadata,
+    inputSchema: z.object({ id: z.string().min(1).max(2000).describe("Exact application ID returned by search_applications; may be a UUID or a readable legacy ID. Preserve it unchanged.") }).strict(), annotations, _meta: metadata,
   }, async ({ id }) => {
     try {
       const application = await getApplication(id);

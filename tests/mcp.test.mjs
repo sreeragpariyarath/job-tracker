@@ -43,7 +43,7 @@ test('real MCP transport initializes, lists only read tools, validates and execu
   const { createTrackerMcpServer } = load('lib/mcp/server.ts', {
     '@modelcontextprotocol/sdk/server/mcp.js': { McpServer }, zod: { z },
     '../types': { STATUSES: ['Applied', 'Rejected', 'Closed'], SOURCES: ['Indeed', 'Other'] },
-    '../applications': { listApplicationsPage: async value => { calls++; options = value; return { items: [{ id, status: 'Rejected' }], total: 11 }; }, getApplication: async value => value === id ? { id } : null },
+    '../applications': { listApplicationsPage: async value => { calls++; options = value; return { items: [{ id, status: 'Rejected' }], total: 11 }; }, getApplication: async value => [id, 'alignminds-mern'].includes(value) ? { id: value } : null },
   });
   const route = load('app/api/mcp/route.ts', {
     '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js': { WebStandardStreamableHTTPServerTransport },
@@ -63,6 +63,11 @@ test('real MCP transport initializes, lists only read tools, validates and execu
   assert.equal(options.status, 'All'); assert.equal(search.result.structuredContent.pagination.totalPages, 2);
   await rpc('tools/call', { name: 'search_applications', arguments: { pageSize: 51 } }); assert.equal(calls, 1);
   assert.equal((await rpc('tools/call', { name: 'get_application', arguments: { id } })).result.structuredContent.application.id, id);
+  assert.equal((await rpc('tools/call', { name: 'get_application', arguments: { id: 'alignminds-mern' } })).result.structuredContent.application.id, 'alignminds-mern');
+  for (const invalidId of ['', 'x'.repeat(2001), { $ne: null }]) {
+    const invalid = await rpc('tools/call', { name: 'get_application', arguments: { id: invalidId } });
+    assert.ok(invalid.error || invalid.result?.isError);
+  }
   assert.equal((await rpc('tools/call', { name: 'get_application', arguments: { id: '123e4567-e89b-42d3-a456-426614174001' } })).result.isError, true);
   assert.equal((await route.GET(new Request(config.resource))).status, 405);
 });
