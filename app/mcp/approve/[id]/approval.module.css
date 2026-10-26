@@ -1,0 +1,48 @@
+.page { min-height: 100svh; background: var(--bg); color: var(--fg); padding: 0 28px; font-size: 14px; }
+.header { max-width: 1120px; margin: auto; padding: 24px 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; text-decoration: none; }
+.mark { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; background: var(--accent); color: var(--accent-fg); font-size: 22px; }
+.content { max-width: 1040px; margin: 36px auto 0; }
+.back { font-size: 12px; color: var(--muted); text-decoration: none; }
+.back:hover { color: var(--fg); }
+.heading { margin: 30px 0; }
+.eyebrow { color: var(--applied-fg); font-size: 10px; letter-spacing: 1.8px; font-weight: 600; margin-bottom: 10px; }
+.heading h1 { font-size: clamp(26px, 3vw, 34px); line-height: 1.2; letter-spacing: -1.1px; font-weight: 600; }
+.heading > p:last-child { margin-top: 12px; color: var(--muted); font-size: 14px; line-height: 1.7; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; }
+.card, .approval { border: 1px solid var(--line); background: var(--surface); border-radius: 18px; box-shadow: 0 4px 18px rgb(0 0 0 / 2%); overflow: hidden; }
+.summary { display: flex; align-items: center; gap: 14px; padding: 26px; background: var(--subtle); border-bottom: 1px solid var(--line); }
+.companyIcon { display: grid; place-items: center; flex-shrink: 0; width: 48px; height: 48px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface); font-weight: 600; font-size: 22px; }
+.company { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.company p { color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+.company h2 { font-size: 18px; font-weight: 600; line-height: 1.4; letter-spacing: -.4px; }
+.badge { background: var(--applied-soft); color: var(--applied-fg); border: 1px solid var(--applied-line); border-radius: 20px; padding: 4px 10px; font-size: 11px; font-weight: 500; flex-shrink: 0; }
+.section { padding: 24px 26px; }
+.section + .section { border-top: 1px solid var(--line); }
+.section h3 { font-size: 13px; font-weight: 600; margin-bottom: 20px; }
+.details { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px 28px; }
+.details dt { color: var(--muted); font-size: 11px; margin-bottom: 6px; }
+.details dd { font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.65; }
+.fullWidth { grid-column: 1 / -1; }
+.empty { color: var(--muted); font-size: 13px; }
+.notes { font-size: 13px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.sidebar { position: sticky; top: 24px; }
+.approval { padding: 26px; }
+.approvalIcon { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--applied-line); border-radius: 11px; background: var(--applied-soft); color: var(--applied-fg); font-size: 23px; margin-bottom: 18px; }
+.approval h2 { font-size: 19px; font-weight: 600; letter-spacing: -.5px; }
+.description { color: var(--muted); font-size: 12px; line-height: 1.8; margin-top: 10px; }
+.confirmation { display: flex; align-items: flex-start; gap: 10px; margin: 22px 0; padding: 14px; background: var(--subtle); border: 1px solid var(--line); border-radius: 10px; font-size: 12px; line-height: 1.7; cursor: pointer; }
+.confirmation input { width: 16px; height: 16px; flex-shrink: 0; margin-top: 3px; accent-color: var(--applied); cursor: pointer; }
+.approveButton, .secondaryButton { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 15px; width: 100%; border-radius: 9px; font-size: 12px; font-weight: 600; text-decoration: none; cursor: pointer; transition: background .15s; }
+.approveButton { background: var(--accent); color: var(--accent-fg); border: 1px solid var(--accent); }
+.approveButton:hover { background: var(--accent-hover); }
+.secondaryButton { border: 1px solid var(--line); margin-top: 22px; }
+.secondaryButton:hover { background: var(--subtle); }
+.hint { color: var(--muted); font-size: 11px; line-height: 1.6; margin-top: 12px; text-align: center; }
+.expiry { display: grid; gap: 5px; border-top: 1px solid var(--line); padding-top: 18px; margin-top: 22px; font-size: 11px; }
+.expiry span { color: var(--muted); }
+.expiry time { font-weight: 500; }
+.safety { color: var(--muted); font-size: 11px; line-height: 1.8; padding: 16px 12px; }
+.footer { padding: 32px 0; text-align: center; color: var(--muted); font-size: 10px; }
+@media (max-width: 800px) { .layout { grid-template-columns: 1fr; gap: 20px; } .sidebar { position: static; } .content { max-width: 620px; } }
+@media (max-width: 480px) { .page { padding: 0 16px; } .header { padding: 18px 0; } .content { margin-top: 24px; } .heading { margin: 24px 0; } .summary { flex-wrap: wrap; padding: 20px; } .company h2 { font-size: 16px; } .badge { margin-left: 62px; } .section, .approval { padding: 20px; } .details { gap: 18px; } }
