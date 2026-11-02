@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     const results: { source: string; query: string; found?: number; added?: number; error?: string }[] = [];
     for (const query of settings.queries) for (const source of ["freehire", "jsearch"] as const) {
       if (!settings[source]) continue;
-      try { const local = await searchJobs(query, source, { location: settings.location }); let remote = { found: 0, added: 0 }; if (settings.includeRemote && source === 'freehire') remote = await searchJobs(query, source, { remote: true }); results.push({ source, query, found: local.found + remote.found, added: local.added + remote.added }); }
+      try { const local = await searchJobs(query, source, { location: 'Kochi' }); let remote = { found: 0, added: 0 }; if (settings.includeRemote && source === 'freehire') remote = await searchJobs(query, source, { remote: true }); results.push({ source, query, found: local.found + remote.found, added: local.added + remote.added }); }
       catch { results.push({ source, query, error: "Search failed. Check source configuration or try again manually." }); }
       await runs.updateOne({ _id: day }, { $set: { results } });
     }

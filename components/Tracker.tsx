@@ -61,6 +61,7 @@ export default function Tracker() {
   const [page, setPage] = useState(1);
   const [sheet, setSheet] = useState<SheetState>(null);
   const [jsonImportOpen, setJsonImportOpen] = useState(false);
+  const [workspace, setWorkspace] = useState<"applications" | "inbox" | "profile">("applications");
   const searchRef = useRef<HTMLInputElement>(null);
   const pageSize = 10;
 
@@ -225,12 +226,30 @@ export default function Tracker() {
         </div>
       </header>
 
-      <details className="group">
-        <summary className="cursor-pointer text-sm font-medium text-fg">Career profile</summary>
-        <div className="mt-3"><CareerProfile /></div>
-      </details>
+      <nav aria-label="Tracker sections" className="rounded-xl border border-line bg-surface p-1.5">
+        <label className="sr-only" htmlFor="tracker-section">Tracker section</label>
+        <select id="tracker-section" value={workspace} onChange={(event) => setWorkspace(event.target.value as typeof workspace)} className="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-fg sm:hidden">
+          <option value="applications">Applications</option>
+          <option value="inbox">Job inbox</option>
+          <option value="profile">Career profile</option>
+        </select>
+        <div className="hidden gap-1 sm:flex">
+          {([
+            ["applications", "Applications"],
+            ["inbox", "Job inbox"],
+            ["profile", "Career profile"],
+          ] as const).map(([id, label]) => (
+            <button key={id} type="button" aria-pressed={workspace === id} onClick={() => setWorkspace(id)} className={`rounded-lg px-5 py-2.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${workspace === id ? "bg-subtle text-fg shadow-sm" : "text-muted hover:bg-subtle hover:text-fg"}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+      </nav>
 
-      <details><summary className="cursor-pointer text-sm font-medium text-fg">Job inbox</summary><div className="mt-3"><JobInbox /></div></details>
+      {workspace === "profile" && <CareerProfile />}
+      {workspace === "inbox" && <JobInbox />}
+
+      <div className={workspace === "applications" ? "flex flex-col gap-4" : "hidden"}>
 
       <StatsBar
         dueCount={summary.due.length}
@@ -343,6 +362,7 @@ export default function Tracker() {
           }
         />
       </section>
+      </div>
 
       <Modal
         open={sheet !== null}
