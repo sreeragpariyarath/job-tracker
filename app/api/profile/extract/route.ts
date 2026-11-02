@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { PDFParse } from "pdf-parse";
 import mammoth from "mammoth";
 import { PRIVATE_HEADERS, requireOwner } from "@/lib/api-auth";
 
@@ -19,7 +18,9 @@ export async function POST(request: Request) {
     const name = file.name.toLowerCase();
     let text = "";
     if (name.endsWith(".pdf") && data.subarray(0, 5).toString() === "%PDF-") {
-      const parser = new PDFParse({ data });
+      const { CanvasFactory } = await import("pdf-parse/worker");
+      const { PDFParse } = await import("pdf-parse");
+      const parser = new PDFParse({ data, CanvasFactory });
       try { text = (await parser.getText()).text; } finally { await parser.destroy(); }
     } else if (name.endsWith(".docx") && data.subarray(0, 2).toString() === "PK") {
       text = (await mammoth.extractRawText({ buffer: data })).value;
