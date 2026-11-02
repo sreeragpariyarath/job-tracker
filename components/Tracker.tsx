@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ApplicationDetails } from "./ApplicationDetails";
 import { CareerProfile } from "./CareerProfile";
+import { JobInbox } from "./JobInbox";
 import { ApplicationForm } from "./ApplicationForm";
 import { ApplicationsTable } from "./ApplicationsTable";
 import { FollowUpQueue } from "./FollowUpQueue";
@@ -228,6 +229,8 @@ export default function Tracker() {
         <summary className="cursor-pointer text-sm font-medium text-fg">Career profile</summary>
         <div className="mt-3"><CareerProfile /></div>
       </details>
+
+      <details><summary className="cursor-pointer text-sm font-medium text-fg">Job inbox</summary><div className="mt-3"><JobInbox /></div></details>
 
       <StatsBar
         dueCount={summary.due.length}

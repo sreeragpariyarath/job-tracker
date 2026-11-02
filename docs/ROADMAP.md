@@ -10,6 +10,10 @@ Make the tracker installable on iPhone as a PWA. Add an owner-only career profil
 
 Search JSearch and FreeHire daily, initially three JSearch searches per day. Keep sources and result limits configurable. Import Naukri job-alert emails after verifying their format. Store listings separately, remove duplicates and compare against existing applications. Show source links, discovery dates and job details in a Job Inbox. Never assume complete coverage.
 
+### Setup and current limits
+
+Set `JSEARCH_API_KEY` to an OpenWeb Ninja API key and `CRON_SECRET` to a random secret in the Vercel production environment; redeploy to apply them. Vercel sends the cron secret as a bearer token. The schedule runs daily at 03:30 UTC (approximately 09:00–10:00 IST on Hobby). In Job inbox → Daily search settings, select sources, enter up to three searches and enable the schedule. FreeHire searches job titles; JSearch searches the supplied query in India. FreeHire may return jobs outside the preferred location. Each query requests only the first page. Results are not AI-scored, and an existing application match is a warning rather than proof. Scheduled runs are claimed once per IST day; if a run is interrupted it is not retried automatically, to avoid duplicate API usage. The owner can search manually. Vercel cron delivery is not guaranteed. Naukri alert import requires the later Gmail connection and is not implemented yet.
+
 ## Phase 3 — Tailored resumes
 
 Use the verified profile and paid Gemini to score job fit and produce truthful tailored resumes and application emails. Flag missing qualifications; never invent facts. Generate accessible, text-based ATS-friendly PDFs and validate extraction. Store the exact resume version with each draft. Limit AI use and record costs.

@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:auth": "node --test tests/auth.test.mjs",
-    "test:mcp": "node --test tests/mcp.test.mjs tests/previews.test.mjs"
+    "test:mcp": "node --test tests/mcp.test.mjs tests/previews.test.mjs",
+    "test:discovery": "node --test tests/discovery.test.mjs"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^4.33.0",
