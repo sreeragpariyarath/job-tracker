@@ -7,7 +7,7 @@ const json = (data: unknown, status = 200) => NextResponse.json(data, { status, 
 export async function GET(request: Request) { const denied = await requireOwner(request); if (denied) return denied; try { return json({ jobs: await listJobs() }); } catch { return json({ error: "Could not load jobs." }, 500); } }
 export async function POST(request: Request) {
   const denied = await requireOwner(request); if (denied) return denied;
-  try { const data = z.object({ query: z.string().trim().min(1).max(120), source: z.enum(['freehire', 'jsearch']) }).strict().safeParse(await request.json()); if (!data.success) return json({ error: 'Enter a valid search.' }, 400); return json(await searchJobs(data.data.query, data.data.source)); }
+  try { const data = z.object({ query: z.string().trim().min(1).max(120), source: z.enum(['freehire', 'jsearch']), location: z.string().trim().max(80).optional(), remote: z.boolean().optional() }).strict().safeParse(await request.json()); if (!data.success) return json({ error: 'Enter a valid search.' }, 400); return json(await searchJobs(data.data.query, data.data.source, { location: data.data.location, remote: data.data.remote })); }
   catch (e) { return json({ error: e instanceof Error ? e.message : 'Search failed.' }, 502); }
 }
 export async function PATCH(request: Request) {

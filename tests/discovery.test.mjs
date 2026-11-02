@@ -14,11 +14,21 @@ function setup() {
   const exports = {};
   const deps = { 'server-only': {}, 'node:crypto': crypto, './db': { getDb: async () => db } };
   let payload = { data: [] };
-  const fetch = async () => ({ ok: true, json: async () => payload });
+  const requests = [];
+  const fetch = async url => { requests.push(url); return { ok: true, json: async () => payload }; };
   vm.runInNewContext(ts.transpileModule(fs.readFileSync('lib/discovery.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText,
     { exports, require: id => deps[id], URL, AbortSignal, fetch, process: { env: {} }, Date });
-  return { api: exports, jobs, apps, setPayload: value => { payload = value; } };
+  return { api: exports, jobs, apps, requests, setPayload: value => { payload = value; } };
 }
+test('FreeHire location and remote filters do not widen to all India jobs', async () => {
+  const h = setup();
+  await h.api.searchJobs('developer', 'freehire', { location: 'Kochi' });
+  await h.api.searchJobs('developer', 'freehire', { remote: true });
+  assert.equal(h.requests[0].searchParams.get('cities'), 'Kochi');
+  assert.equal(h.requests[0].searchParams.has('countries'), false);
+  assert.equal(h.requests[1].searchParams.get('countries'), 'IN');
+  assert.equal(h.requests[1].searchParams.get('work_mode'), 'remote');
+});
 test('search deduplicates tracking links and retains dismissed state', async () => {
   const h = setup();
   h.setPayload({ data: [{ public_slug: 'a', title: 'Developer', company: 'Acme', url: 'https://jobs.example/1?utm_source=a', description: 'Job' }] });

@@ -9,16 +9,18 @@ function safeUrl(value: unknown) { try { const u = new URL(str(value, 2000)); if
 function canonical(job: ProviderJob) { return job.url || [job.company, job.title, job.location].map(s => s.normalize('NFKC').trim().toLowerCase()).join('|'); }
 function digest(value: string) { return createHash('sha256').update(value).digest('hex'); }
 
-export async function searchJobs(query: string, source: "freehire" | "jsearch") {
+export async function searchJobs(query: string, source: "freehire" | "jsearch", options: { location?: string; remote?: boolean } = {}) {
   let url: URL;
   const headers: Record<string, string> = {};
   if (source === "freehire") {
     url = new URL("https://freehire.me/api/v1/agent/jobs/search");
     url.searchParams.set("q", query); url.searchParams.set("q_fields", "title"); url.searchParams.set("limit", "20"); url.searchParams.set("description_format", "text");
+    if (options.remote) { url.searchParams.set("countries", "IN"); url.searchParams.set("work_mode", "remote"); }
+    else if (options.location) url.searchParams.set("cities", options.location);
   } else {
     if (!process.env.JSEARCH_API_KEY) throw new Error("JSearch is not configured. Add JSEARCH_API_KEY to the server.");
     url = new URL("https://api.openwebninja.com/jsearch/search-v2");
-    url.searchParams.set("query", query); url.searchParams.set("country", "in"); url.searchParams.set("date_posted", "week"); headers["x-api-key"] = process.env.JSEARCH_API_KEY;
+    url.searchParams.set("query", options.location && !options.remote ? `${query} in ${options.location}` : `${query} in India`); if (options.remote) url.searchParams.set("work_from_home", "true"); url.searchParams.set("country", "in"); url.searchParams.set("date_posted", "week"); headers["x-api-key"] = process.env.JSEARCH_API_KEY;
   }
   const response = await fetch(url, { headers, cache: "no-store", signal: AbortSignal.timeout(45000) });
   if (!response.ok) throw new Error(`${source === "freehire" ? "FreeHire" : "JSearch"} could not complete the search (${response.status}).`);
@@ -45,5 +47,6 @@ export async function listJobs() {
   const db = await getDb();
   const jobs = await db.collection<DiscoveredJob>('discovered_jobs').find({ status: { $ne: 'dismissed' } }).sort({ discoveredAt: -1 }).limit(100).toArray();
   const apps = await db.collection<ApplicationDocument>('applications').find({}, { projection: { company: 1, role: 1, link: 1 } }).toArray();
-  return jobs.map(job => ({ ...job, applied: apps.some(app => (safeUrl(app.link) && safeUrl(app.link) === job.url) || (app.company?.trim().toLowerCase() === job.company.toLowerCase() && app.role?.trim().toLowerCase() === job.title.toLowerCase())) }));
+  const normalize = (value: string) => value.normalize('NFKC').trim().replace(/\s+/g, ' ').toLowerCase();
+  return jobs.map(job => ({ ...job, possibleDuplicate: jobs.some(other => other._id !== job._id && normalize(other.company) === normalize(job.company) && normalize(other.title) === normalize(job.title)), applied: apps.some(app => (safeUrl(app.link) && safeUrl(app.link) === job.url) || (app.company && app.role && normalize(app.company) === normalize(job.company) && normalize(app.role) === normalize(job.title))) }));
 }
