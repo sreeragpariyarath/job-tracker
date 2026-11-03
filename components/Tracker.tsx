@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ApplicationDetails } from "./ApplicationDetails";
 import { CareerProfile } from "./CareerProfile";
 import { JobInbox } from "./JobInbox";
+import { TailoredDrafts } from "./TailoredDrafts";
 import { ApplicationForm } from "./ApplicationForm";
 import { ApplicationsTable } from "./ApplicationsTable";
 import { FollowUpQueue } from "./FollowUpQueue";
@@ -61,7 +62,7 @@ export default function Tracker() {
   const [page, setPage] = useState(1);
   const [sheet, setSheet] = useState<SheetState>(null);
   const [jsonImportOpen, setJsonImportOpen] = useState(false);
-  const [workspace, setWorkspace] = useState<"applications" | "inbox" | "profile">("applications");
+  const [workspace, setWorkspace] = useState<"applications" | "inbox" | "profile" | "drafts">("applications");
   const searchRef = useRef<HTMLInputElement>(null);
   const pageSize = 10;
 
@@ -227,16 +228,11 @@ export default function Tracker() {
       </header>
 
       <nav aria-label="Tracker sections" className="rounded-xl border border-line bg-surface p-1.5">
-        <label className="sr-only" htmlFor="tracker-section">Tracker section</label>
-        <select id="tracker-section" value={workspace} onChange={(event) => setWorkspace(event.target.value as typeof workspace)} className="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-fg sm:hidden">
-          <option value="applications">Applications</option>
-          <option value="inbox">Job inbox</option>
-          <option value="profile">Career profile</option>
-        </select>
-        <div className="hidden gap-1 sm:flex">
+        <div className="flex flex-wrap gap-1">
           {([
             ["applications", "Applications"],
             ["inbox", "Job inbox"],
+            ["drafts", "Resume drafts"],
             ["profile", "Career profile"],
           ] as const).map(([id, label]) => (
             <button key={id} type="button" aria-pressed={workspace === id} onClick={() => setWorkspace(id)} className={`rounded-lg px-5 py-2.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${workspace === id ? "bg-subtle text-fg shadow-sm" : "text-muted hover:bg-subtle hover:text-fg"}`}>
@@ -248,6 +244,7 @@ export default function Tracker() {
 
       {workspace === "profile" && <CareerProfile />}
       {workspace === "inbox" && <JobInbox />}
+      {workspace === "drafts" && <TailoredDrafts />}
 
       <div className={workspace === "applications" ? "flex flex-col gap-4" : "hidden"}>
 

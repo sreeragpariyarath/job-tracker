@@ -14,8 +14,8 @@ Phase 3 uses the owner-reviewed career profile as the source for qualifications.
 
 ## AI usage and cost
 
-Gemini integration is not implemented yet. Before enabling live requests, configure private credentials, a model and explicit usage limits; record usage and estimated cost without claiming those limits cap external billing. Never commit credentials or profile data. Consult current provider pricing when configuring the model.
+Groq draft generation uses a private server key and limits the owner to five attempts per IST day. Token counts are saved with each successful draft; a cost display and configurable spending limit remain to be implemented. The attempt limit is not a billing cap. Never commit credentials or profile data. Consult current provider pricing when configuring the model.
 
 ## Status and outstanding verification
 
-The owner has tested read-only MCP tools in ChatGPT and Claude and reported working job discovery. Preview and approval were tested, but successful MCP creation after approval still needs an end-to-end check. The Phase 3 schemas alone do not implement generation, persistence, review or PDF export.
+The owner has tested read-only MCP tools in ChatGPT and Claude and reported working job discovery. Preview and approval were tested, but successful MCP creation after approval still needs an end-to-end check. Phase 3 draft generation and editing need live verification; PDF export is not yet implemented.
