@@ -27,6 +27,18 @@ test('Groq output is validated and usage is retained', async () => {
   assert.equal(result.usage.totalTokens, 30);
   assert.equal(request.options.headers.Authorization, 'Bearer test-key');
   assert.equal(request.url.includes('test-key'), false);
+  const prompt = JSON.parse(request.options.body);
+  assert.match(prompt.messages[0].content, /Do not simply reproduce/);
+  assert.match(prompt.messages[1].content, /React/);
+});
+test('resume comparison detects unchanged content and changed wording', () => {
+  const api = load('lib/tailoring-comparison.ts', {});
+  const original = 'EXPERIENCE\nBuilt user interfaces with React and TypeScript.';
+  assert.equal(api.compareResume(original, original).sameText, true);
+  const result = api.compareResume(original, 'EXPERIENCE\nBuilt responsive interfaces using React and TypeScript.');
+  assert.equal(result.sameText, false);
+  assert.equal(result.changedLines.length, 1);
+  assert.equal(api.compareResume('', original).available, false);
 });
 test('incomplete Groq output cannot become a draft', async () => {
   const schema = load('lib/tailored-draft.ts', { zod: { z } });
