@@ -14,8 +14,8 @@ Phase 3 uses the owner-reviewed career profile as the source for qualifications.
 
 ## AI usage and cost
 
-Groq draft generation uses a private server key and limits the owner to five attempts per IST day. Token counts are saved with each successful draft; a cost display and configurable spending limit remain to be implemented. The attempt limit is not a billing cap. Never commit credentials or profile data. Consult current provider pricing when configuring the model.
+Groq draft generation uses a private server key and limits the owner to five attempts per IST day. Token counts and the price assumptions used for the estimate are saved with new successful drafts. The estimate is not a bill, excludes taxes and may not reflect free-tier usage. A configurable spending limit is not implemented; the attempt limit is not a billing cap. Never commit credentials or profile data.
 
 ## Status and outstanding verification
 
-The owner has tested read-only MCP tools in ChatGPT and Claude and reported working job discovery. Preview and approval were tested, but successful MCP creation after approval still needs an end-to-end check. Phase 3 draft generation and editing need live verification; PDF export is not yet implemented.
+The owner has tested read-only MCP tools in ChatGPT and Claude and reported working job discovery. Preview and approval were tested, but successful MCP creation after approval still needs an end-to-end check. Phase 3 generation has been tested by the owner. Saved-text PDF export and a basic number review need deployment and iPhone verification. The number review is not a comprehensive fact check; all content requires owner review.

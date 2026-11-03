@@ -15,5 +15,5 @@ export async function generateTailored(profile: unknown, job: { company: string;
   if (!output || body.choices?.[0]?.finish_reason !== "stop") throw new Error("Groq did not return a complete draft. Try again.");
   const result = tailoredContentSchema.safeParse(JSON.parse(output));
   if (!result.success) throw new Error("The generated draft was incomplete. Try again.");
-  return { content: result.data, usage: { inputTokens: body.usage?.prompt_tokens ?? null, outputTokens: body.usage?.completion_tokens ?? null, totalTokens: body.usage?.total_tokens ?? null } };
+  return { content: result.data, usage: { model: "openai/gpt-oss-120b", inputTokens: body.usage?.prompt_tokens ?? null, outputTokens: body.usage?.completion_tokens ?? null, totalTokens: body.usage?.total_tokens ?? null, inputPerMillionUsd: 0.15, outputPerMillionUsd: 0.60, pricingDate: "2026-11-03" } };
 }

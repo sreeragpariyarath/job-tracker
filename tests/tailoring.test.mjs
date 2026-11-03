@@ -4,6 +4,9 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import ts from 'typescript';
 import { z } from 'zod';
+import path from 'node:path';
+import PDFDocument from 'pdfkit';
+import { PDFParse } from 'pdf-parse';
 
 function load(file, deps, context = {}) {
   const exports = {};
@@ -29,4 +32,16 @@ test('incomplete Groq output cannot become a draft', async () => {
   const schema = load('lib/tailored-draft.ts', { zod: { z } });
   const api = load('lib/generate-tailored.ts', { 'server-only': {}, './tailored-draft': schema }, { process: { env: { GROQ_API_KEY: 'test-key' } }, AbortSignal, fetch: async () => ({ ok: true, json: async () => ({ choices: [{ message: { content: '{}' }, finish_reason: 'stop' }] }) }) });
   await assert.rejects(api.generateTailored({}, { company: 'Acme', title: 'Developer', description: 'Job' }), /incomplete/);
+});
+test('resume PDF contains selectable saved text across pages', async () => {
+  const api = load('lib/resume-pdf.ts', { pdfkit: { default: PDFDocument }, 'node:path': { default: path } }, { Buffer, process });
+  const input = Array.from({ length: 100 }, (_, i) => `Experience ${i}: Built accessible software.`).join('\n');
+  const pdf = await api.renderResumePdf(input);
+  const parser = new PDFParse({ data: pdf });
+  try { const result = await parser.getText(); assert.match(result.text, /Experience 0: Built accessible software/); assert.match(result.text, /Experience 99: Built accessible software/); assert.ok(result.total > 1); }
+  finally { await parser.destroy(); }
+});
+test('number review finds values missing from the profile', () => {
+  const api = load('lib/draft-review.ts', {});
+  assert.deepEqual(Array.from(api.findUnverifiedNumbers('Worked for 8 years on 3 projects', 'Completed 3 projects')), ['8']);
 });

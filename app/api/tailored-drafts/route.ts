@@ -5,12 +5,13 @@ import { requireOwner, PRIVATE_HEADERS } from "@/lib/api-auth";
 import { getDb } from "@/lib/db";
 import { generateTailored } from "@/lib/generate-tailored";
 import { tailoredContentSchema } from "@/lib/tailored-draft";
+import { findUnverifiedNumbers } from "@/lib/draft-review";
 
 const json = (data: unknown, status = 200) => NextResponse.json(data, { status, headers: PRIVATE_HEADERS });
 export const maxDuration = 120;
 export async function GET(request: Request) {
   const denied = await requireOwner(request); if (denied) return denied;
-  try { const db = await getDb(); const drafts = await db.collection("tailored_drafts").find({}).sort({ createdAt: -1 }).limit(100).toArray(); return json({ drafts }); }
+  try { const db = await getDb(); const drafts = await db.collection("tailored_drafts").find({}).sort({ createdAt: -1 }).limit(100).toArray(); const profile = await db.collection("career_profiles").findOne({ _id: "owner" as never }); const source = Object.values(profile || {}).filter(value => typeof value === 'string').join(' '); return json({ drafts: drafts.map(draft => ({ ...draft, reviewNumbers: findUnverifiedNumbers(`${draft.content?.resume || ''} ${draft.content?.emailBody || ''}`, source) })) }); }
   catch { return json({ error: "Could not load drafts." }, 500); }
 }
 export async function POST(request: Request) {
