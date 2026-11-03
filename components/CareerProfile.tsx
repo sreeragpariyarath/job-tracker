@@ -51,18 +51,19 @@ export function CareerProfile() {
     } catch (error) { setMessage(error instanceof Error ? error.message : "Could not read your CV."); }
     finally { setExtracting(false); }
   }
-  return <section className="rounded-xl border border-line bg-surface p-6" aria-labelledby="profile-title">
-    <h2 id="profile-title" className="text-lg font-semibold">Career profile</h2>
-    <p className="mt-1 text-sm text-muted">Add your real experience and job preferences. You can update this anytime.</p>
-    <div className="mt-4 grid gap-2 text-sm">
+  return <section className="rounded-2xl border border-line bg-surface p-5 shadow-sm sm:p-8" aria-labelledby="profile-title">
+    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-applied-fg">Your background</p>
+    <h2 id="profile-title" className="mt-2 text-2xl font-semibold tracking-tight">Career profile</h2>
+    <p className="mt-2 text-sm leading-6 text-muted">Add your real experience and job preferences. You can update this anytime.</p>
+    <div className="mt-6 grid gap-2 rounded-xl border border-line bg-bg p-4 text-sm">
       <label htmlFor="resume-upload">Upload your CV (PDF, DOCX or TXT, under 1 MB)</label>
       <input id="resume-upload" type="file" accept=".pdf,.docx,.txt" disabled={!ready || extracting} onChange={(event) => { void upload(event.target.files?.[0]); event.target.value = ""; }} />
       {extracted && <div className="grid gap-2"><label htmlFor="resume-review">Review and correct the extracted text</label><textarea id="resume-review" rows={12} value={extracted} onChange={(event) => setExtracted(event.target.value)} className="w-full rounded-md border border-line bg-transparent p-2 text-fg" /><div className="flex gap-3"><button type="button" className="underline" onClick={() => { setProfile({ ...profile, resumeText: extracted }); setExtracted(""); setMessage("CV added to the profile. Press Save profile to keep it."); }}>Use this CV</button><button type="button" className="underline" onClick={() => { setExtracted(""); setMessage("CV discarded."); }}>Discard</button></div></div>}
     </div>
-    <form onSubmit={save} className="mt-4 grid gap-4 sm:grid-cols-2">
+    <form onSubmit={save} className="mt-6 grid gap-5 sm:grid-cols-2">
       {fields.map(([key, label]) => <label key={key} className="grid gap-1 text-sm">
         <span>{label}</span>
-        <textarea disabled={!ready} value={profile[key]} onChange={(event) => setProfile({ ...profile, [key]: event.target.value })} rows={key === "experience" || key === "projects" ? 4 : 2} className="w-full rounded-md border border-line bg-transparent p-2 text-fg" />
+        <textarea disabled={!ready} value={profile[key]} onChange={(event) => setProfile({ ...profile, [key]: event.target.value })} rows={key === "experience" || key === "projects" ? 4 : 2} className="w-full rounded-lg border border-line bg-bg p-3 text-sm leading-6 text-fg" />
       </label>)}
       <label className="grid gap-1 text-sm sm:col-span-2"><span>Verified CV text</span><textarea disabled={!ready} rows={8} maxLength={50000} value={profile.resumeText} onChange={(event) => setProfile({ ...profile, resumeText: event.target.value })} className="w-full rounded-md border border-line bg-transparent p-2 text-fg" /></label>
       <div className="sm:col-span-2"><button disabled={!ready} className="rounded-md bg-fg px-4 py-2 text-sm font-medium text-surface disabled:opacity-50" type="submit">Save profile</button><p className="mt-2 text-sm text-muted" role="status">{message}</p></div>

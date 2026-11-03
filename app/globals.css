@@ -95,17 +95,26 @@
 
 /* Scale knob for the whole UI: rem-based Tailwind sizes follow this; px arbitrary values were scaled to match. */
 html {
-  font-size: 80%;
+  font-size: 90%;
 }
 
 body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font-body);
-  font-size: 0.875rem;
+  font-size: 1rem;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Keep iPhone Safari from zooming the page when a field receives focus. */
+@media (max-width: 640px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
 }
 
 html,

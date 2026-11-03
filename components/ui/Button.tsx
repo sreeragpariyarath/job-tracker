@@ -12,8 +12,8 @@ const variants: Record<ButtonVariant, string> = {
 };
 
 const sizes = {
-  md: "h-9 rounded-md px-3 text-xs",
-  lg: "h-12 rounded-lg px-5 text-[12px]",
+  md: "min-h-10 rounded-lg px-4 text-sm",
+  lg: "min-h-11 rounded-lg px-5 text-sm",
 };
 
 type Props = ComponentProps<"button"> & { variant?: ButtonVariant; size?: keyof typeof sizes };

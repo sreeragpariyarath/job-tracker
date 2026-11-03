@@ -38,12 +38,12 @@ export function TableToolbar({ query, onQuery, source, onSource, sort, onSort, o
           value={query}
           onChange={(e) => onQuery(e.target.value)}
           aria-label="Search applications"
-          className="h-[39.2px] w-full rounded-lg border border-line bg-subtle pr-4 pl-[41.6px] text-[12px] text-fg placeholder:text-muted transition-colors focus:border-tab-active-line focus:outline-none"
+          className="min-h-11 w-full rounded-lg border border-line bg-surface pr-4 pl-[41.6px] text-sm text-fg placeholder:text-muted transition-colors focus:border-tab-active-line focus:outline-none"
         />
       </div>
       <Select value={source} options={SOURCE_OPTIONS} onChange={onSource} ariaLabel="Filter by source" large />
       <Select value={sort} options={SORTS} onChange={(v) => onSort(v as SortKey)} ariaLabel="Sort applications" large />
-      <Button size="lg" variant="default" onClick={onExport} title="Download all applications as CSV" className="bg-surface">
+      <Button size="lg" variant="default" onClick={onExport} title="Download applications on this page as CSV" className="bg-surface">
         <Download className="size-4" />
         Export CSV
       </Button>

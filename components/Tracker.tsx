@@ -199,16 +199,17 @@ export default function Tracker() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1315.2px] flex-col gap-4 px-4 py-8 sm:px-[52px]">
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
+    <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 py-6 sm:px-10 sm:py-10">
+      <header className="flex flex-wrap items-center justify-between gap-5 border-b border-line pb-6">
         <div>
-          <h1 className="text-[22.4px] leading-tight font-semibold tracking-tight text-fg">Application Tracker</h1>
-          <p className="mt-1 text-base text-muted">Companies you have applied to, and the follow-ups due.</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-applied-fg">Your career workspace</p>
+          <h1 className="mt-1 text-2xl leading-tight font-semibold tracking-tight text-fg">Application Tracker</h1>
+          <p className="mt-1 text-sm text-muted">Your job search, all in one place.</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <a
             href="/auth/logout"
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-line bg-surface px-4 text-[12px] font-medium whitespace-nowrap text-muted no-underline transition-colors hover:border-zinc-700/60 hover:bg-subtle hover:text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-line bg-surface px-4 text-sm font-medium whitespace-nowrap text-muted no-underline transition-colors hover:bg-subtle hover:text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
           >
             <svg className="size-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M8 4H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h4M12 6l4 4-4 4M7 10h9" />
@@ -227,7 +228,7 @@ export default function Tracker() {
         </div>
       </header>
 
-      <nav aria-label="Tracker sections" className="rounded-xl border border-line bg-surface p-1.5">
+      <nav aria-label="Tracker sections" className="rounded-2xl border border-line bg-surface p-1.5 shadow-sm">
         <div className="flex flex-wrap gap-1">
           {([
             ["applications", "Applications"],
@@ -235,7 +236,7 @@ export default function Tracker() {
             ["drafts", "Resume drafts"],
             ["profile", "Career profile"],
           ] as const).map(([id, label]) => (
-            <button key={id} type="button" aria-pressed={workspace === id} onClick={() => setWorkspace(id)} className={`rounded-lg px-5 py-2.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${workspace === id ? "bg-subtle text-fg shadow-sm" : "text-muted hover:bg-subtle hover:text-fg"}`}>
+            <button key={id} type="button" aria-pressed={workspace === id} onClick={() => setWorkspace(id)} className={`min-h-11 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus ${workspace === id ? "bg-applied-soft text-applied-fg" : "text-muted hover:bg-subtle hover:text-fg"}`}>
               {label}
             </button>
           ))}
