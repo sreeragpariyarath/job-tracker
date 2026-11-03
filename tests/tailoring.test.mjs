@@ -45,3 +45,10 @@ test('number review finds values missing from the profile', () => {
   const api = load('lib/draft-review.ts', {});
   assert.deepEqual(Array.from(api.findUnverifiedNumbers('Worked for 8 years on 3 projects', 'Completed 3 projects')), ['8']);
 });
+test('resume PDF renders and extracts common CV bullets and hyphens', async () => {
+  const api = load('lib/resume-pdf.ts', { pdfkit: { default: PDFDocument }, 'node:path': { default: path } }, { Buffer, process });
+  const pdf = await api.renderResumePdf('SAMPLE CANDIDATE\nDeveloper\n\nEXPERIENCE\n\uf0b7 Built an end\u2011to\u2011end application.\n• Led real-time work.');
+  const parser = new PDFParse({ data: pdf });
+  try { const result = await parser.getText(); assert.match(result.text, /Built an end-to-end application/); assert.match(result.text, /Led real-time work/); assert.doesNotMatch(result.text, /[\u0000\uFFFD\uF0B7]/); }
+  finally { await parser.destroy(); }
+});
